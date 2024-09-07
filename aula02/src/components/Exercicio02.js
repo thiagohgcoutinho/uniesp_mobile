@@ -1,25 +1,26 @@
-import { View, Text, StyleSheet } from 'react-native'
-import React from 'react'
+import React from 'react';
+import { View, StyleSheet } from 'react-native';
 
 const Exercicio02 = () => {
   return (
     <View style={styles.container}>
-      <View style={styles.box}/>
+      <View style={styles.box} />
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    box: {
-        width: 50,
-        height: 50,
-        backgroundColor: 'purple',
-    }
-})
+  container: {
+    flex: 1, // Ocupar toda a tela
+    justifyContent: 'center', // Centralizar verticalmente
+    alignItems: 'center', // Centralizar horizontalmente
+    padding: 10, // Pequeno padding para evitar bordas coladas
+  },
+  box: {
+    width: 50,
+    height: 50,
+    backgroundColor: 'purple', // Manter a cor roxa
+  },
+});
 
-export default Exercicio02
+export default Exercicio02;
