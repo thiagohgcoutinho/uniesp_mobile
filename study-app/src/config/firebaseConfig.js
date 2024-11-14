@@ -1,15 +1,23 @@
 import { initializeApp, getApps, getApp } from "firebase/app"
 import { getAuth } from "firebase/auth"
 import { getFirestore } from "firebase/firestore"
+import {
+  FIREBASE_api_key,
+  FIREBASE_AUTH_DOMAIN,
+  FIREBASE_PROJECT_ID,
+  FIREBASE_STORAGE_BUCKET,
+  FIREBASE_MESSAGING_SENDER_ID,
+  FIREBASE_APP_ID
+} from "@env"
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBpd5OfC4Gbl4zvH7iGhKO3pKHdFMFgtZM",
-  authDomain: "study-app-56d76.firebaseapp.com",
-  projectId: "study-app-56d76",
-  storageBucket: "study-app-56d76.firebasestorage.app",
-  messagingSenderId: "8065312101",
-  appId: "1:8065312101:web:e3e0d6136df3a57bca6d8c"
+  apiKey: FIREBASE_api_key,
+  authDomain: FIREBASE_AUTH_DOMAIN,
+  projectId: FIREBASE_PROJECT_ID,
+  storageBucket: FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
+  appId: FIREBASE_APP_ID
 }
 
 
