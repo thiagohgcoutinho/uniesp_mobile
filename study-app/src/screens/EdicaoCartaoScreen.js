@@ -1,111 +1,138 @@
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native'
-import React, { useContext, useState, useEffect } from 'react'
-import CartoesEstudoContext from '../contexts/CartoesEstudoContext'
-import { Picker } from '@react-native-picker/picker'
-import DateTimePickerModal from 'react-native-modal-datetime-picker'
+import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import React, { useContext, useState, useEffect } from 'react';
+import { Picker } from '@react-native-picker/picker';
+import CartoesEstudoContext from '../contexts/CartoesEstudoContext';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 const EdicaoCartaoScreen = ({ route, navigation }) => {
+    const { id } = route.params || {};
+    const { cartoes, adicionarCartao, atualizarCartao } = useContext(CartoesEstudoContext);
+    const cartao = cartoes.find(c => c.id === id) || {};
 
-    const { id } = route.params || {}
-    const { cartoes, adicionarCartao, atualizarCartao } = useContext(CartoesEstudoContext)
-    const cartao = cartoes.find(c => c.id == id) || {}
+    const statusLabels = {
+        backlog: "Backlog",
+        in_progress: "Em Progresso",
+        done: "Concluído",
+    };
 
-    const [titulo, setTitulo] = useState(cartao.titulo || "")
-    const [notas, setNotas] = useState(cartao.notas || "")
-    const [status, setStatus] = useState(cartao.status || "")
-
-    const [dataTermino, setDataTermino] = useState(cartao.dataTermino ? new Date(cartao.dataTermino) : new Date())
-    const [mostraDataPicker, setMostraDataPicker] = useState(false)
+    const [titulo, setTitulo] = useState(cartao.titulo || '');
+    const [notas, setNotas] = useState(cartao.notas || '');
+    const [status, setStatus] = useState(cartao.status || 'backlog');
+    const [dataTermino, setDataTermino] = useState(cartao.dataTermino ? new Date(cartao.dataTermino) : new Date());
+    const [mostraDataPicker, setMostraDataPicker] = useState(false);
+    const [modoData, setModoData] = useState("date");
+    const [mostraStatusPicker, setMostraStatusPicker] = useState(false);
 
     useEffect(() => {
         if (id) {
-            setTitulo(cartao.titulo)
-            setStatus(cartao.status)
-            setNotas(cartao.notas)
+            setTitulo(cartao.titulo);
+            setStatus(cartao.status);
+            setNotas(cartao.notas);
+            setDataTermino(new Date(cartao.dataTermino));
         }
-    }, [id, cartao])
+    }, [id, cartao]);
 
-    function salvar() {
-        const dadosCartao = { titulo, notas, status, dataTermino: dataTermino.toISOString() }
-        
+    const salvar = () => {
+        const dadosCartao = { titulo, notas, status, dataTermino: dataTermino.toISOString() };
+        console.log('Dados do cartão a ser salvo:', dadosCartao);
+
         if (id) {
-            atualizarCartao(id, dadosCartao)
+            console.log('Atualizando cartão existente com ID:', id);
+            atualizarCartao(id, dadosCartao);
         } else {
-            adicionarCartao(dadosCartao)
+            console.log('Adicionando novo cartão');
+            adicionarCartao(dadosCartao);
         }
 
-        navigation.goBack()
-    }
+        navigation.goBack();
+    };
 
-    function exibirDataPicker() {
-        setMostraDataPicker(true)
-    }
+    const exibirDataPicker = () => {
+        setModoData("date");
+        setMostraDataPicker(true);
+    };
 
-    function ocultarDataPicker() {
-        setMostraDataPicker(false)
-    }
+    const ocultarDataPicker = () => {
+        setMostraDataPicker(false);
+    };
 
-    function confirmarData(data) {
-        setDataTermino(data)
-        ocultarDataPicker
-    }
+    const confirmarData = (data) => {
+        if (modoData === "date") {
+            setDataTermino(data);
+            setModoData("time");
+            setMostraDataPicker(true); // Reabre o picker para selecionar a hora
+        } else {
+            setDataTermino(data);
+            ocultarDataPicker();
+        }
+    };
 
-    function formatarData(data) {
-        const dia = data.getDate().toString().padStart(2, '0')
-        const mes = (data.getMonth() + 1).toString().padStart(2, '0')
-        const ano = data.getFullYear()
-        const horas = data.getHours().toString().padStart(2, '0')
-        const minutos = data.getMinutes().toString().padStart(2, '0')
-        return `${dia}/${mes}/${ano} ${horas}:${minutos}`
-    }
+    const formatarData = (data) => {
+        const dia = data.getDate().toString().padStart(2, '0');
+        const mes = (data.getMonth() + 1).toString().padStart(2, '0');
+        const ano = data.getFullYear();
+        const horas = data.getHours().toString().padStart(2, '0');
+        const minutos = data.getMinutes().toString().padStart(2, '0');
+        return `${dia}/${mes}/${ano} ${horas}:${minutos}`;
+    };
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Título:</Text>
-      <TextInput
-        style={styles.input}
-        value={titulo}
-        onChangeText={setTitulo}
-        placeholder="Título do Cartão..."
-      />
-      <Text style={styles.label}>Notas:</Text>
-      <TextInput
-        style={styles.input}
-        value={notas}
-        onChangeText={setNotas}
-        placeholder="Insira uma descrição..."
-        multiline
-      />
-      <Text style={styles.label}>Data/Hora de Término:</Text>
-      <Button
-        title="Escolher Data"
-        onPress={exibirDataPicker}
-        color="#32cd32"
-      />
-      <DateTimePickerModal
-        isVisible={mostraDataPicker}
-        mode="datetime"
-        onConfirm={confirmarData}
-        onCancel={ocultarDataPicker}
-      />
-      <Text style={styles.selectedDateLabel}>Data selecionada: {formatarData(dataTermino)}</Text>
-      <Text style={styles.label}>Status:</Text>
-      <Picker
-        selectedValue={status}
-        style={styles.input}
-        onValueChange={(itemValue) => setStatus(itemValue)}>
-            <Picker.Item label="Backlog" value="backlog"/>
-            <Picker.Item label="Em Progresso" value="in_progress"/>
-            <Picker.Item label="Concluído" value="done"/>
-      </Picker>
-      <Button
-        title="Salvar"
-        onPress={salvar}
-        color="#32cd32"
-      />
-    </View>
-  )
-}
+    const exibirStatusPicker = () => {
+        setMostraStatusPicker(true);
+    };
+
+    const selecionarStatus = (itemValue) => {
+        setStatus(itemValue);
+        setMostraStatusPicker(false);
+    };
+
+    return (
+        <View style={styles.container}>
+            <Text style={styles.label}>Título:</Text>
+            <TextInput
+                style={styles.input}
+                value={titulo}
+                onChangeText={setTitulo}
+                placeholder="Título do Cartão..."
+            />
+            <Text style={styles.label}>Notas:</Text>
+            <TextInput
+                style={styles.input}
+                value={notas}
+                onChangeText={setNotas}
+                placeholder="Insira uma descrição..."
+                multiline
+            />
+            <Text style={styles.label}>Data/Hora de Término:</Text>
+            <Button title="Escolher Data" onPress={exibirDataPicker} color="#32cd32" />
+            <DateTimePickerModal
+                isVisible={mostraDataPicker}
+                mode={modoData}
+                onConfirm={confirmarData}
+                onCancel={ocultarDataPicker}
+            />
+            <Text style={styles.selectedDateLabel}>Data selecionada: {formatarData(dataTermino)}</Text>
+
+            <Text style={styles.label}>Status:</Text>
+            <Button title="Escolher Status" onPress={exibirStatusPicker} color="#32cd32" />
+            {mostraStatusPicker && (
+                <Picker
+                    selectedValue={status}
+                    style={styles.input}
+                    onValueChange={(itemValue) => selecionarStatus(itemValue)}
+                >
+                    <Picker.Item label="Backlog" value="backlog" />
+                    <Picker.Item label="Em Progresso" value="in_progress" />
+                    <Picker.Item label="Concluído" value="done" />
+                </Picker>
+            )}
+            {status ? (
+                <Text style={styles.selectedStatusLabel}>Status selecionado: {statusLabels[status]}</Text>
+            ) : null}
+
+            <Button title="Salvar" onPress={salvar} color="#32cd32" />
+        </View>
+    );
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -124,6 +151,11 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         color: '#555',
     },
+    selectedStatusLabel: {
+        fontSize: 16,
+        marginBottom: 15,
+        color: '#555',
+    },
     input: {
         fontSize: 16,
         borderWidth: 1,
@@ -138,6 +170,6 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 2,
     }
-  });
+});
 
-export default EdicaoCartaoScreen
+export default EdicaoCartaoScreen;
