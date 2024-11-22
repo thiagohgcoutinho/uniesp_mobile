@@ -97,6 +97,8 @@ const EdicaoCartaoScreen = ({ route, navigation }) => {
                         mode="datetime"
                         onConfirm={confirmarDateTime}
                         onCancel={ocultarDateTimePicker}
+                        themeVariant="light"
+                        display={Platform.OS === 'ios' ? 'inline' : 'spinner'}
                     />
                     <Text style={styles.selectedDateLabel}>
                         Data selecionada: {dataTermino.toLocaleDateString()} às {dataTermino.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
