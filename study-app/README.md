@@ -81,6 +81,17 @@ Abaixo está a organização das pastas do projeto e uma breve descrição de ca
      - Botões de swipe redesenhados, com ícones e cores suaves.
      - Suporte para ajuste responsivo, mantendo os cartões esticados em dispositivos maiores.
 
+6. **`ConfiguracaoPerfilScreen.js`**
+   - Permite que o usuário configure ou edite seu perfil.
+   - Funcionalidades:
+     - Adicionar ou alterar uma foto de perfil.
+     - Editar campos como nome completo e curso.
+     - Exibe o email do usuário autenticado (não editável).
+   - **Melhorias**:
+     - Se o perfil já foi criado, os campos são preenchidos automaticamente.
+     - Diferenciação visual para campos editáveis e não-editáveis.
+     - Foto de perfil com opção de upload da galeria.
+
 ---
 
 ## 🧰 Bibliotecas Utilizadas
@@ -88,6 +99,7 @@ O projeto utiliza as seguintes bibliotecas:
 - **`firebase`**: Integração com Firebase Authentication e Firestore.
 - **`react-native`**: Framework principal para desenvolvimento do app.
 - **`@react-navigation/native`** e **`@react-navigation/stack`**: Gerenciamento de navegação entre telas.
+- **`expo-image-picker`**: Seleção de imagens para a foto de perfil.
 - **`react-native-modal-datetime-picker`**: Seleção de data e hora.
 - **`@react-native-picker/picker`**: Seletor para opções (como status do cartão).
 - **`react-native-vector-icons`**: Ícones para uma interface visual atrativa.
@@ -101,13 +113,14 @@ Além das funcionalidades básicas, foram realizadas melhorias para incrementar 
 2. Interface responsiva para tablets e dispositivos grandes, com elementos centralizados.
 3. Estilização aprimorada para os modais de seleção de data e status.
 4. Swipe com botões redesenhados e integrados ao contexto visual dos cartões.
+5. Tela de configuração do perfil com preenchimento automático e suporte para edição.
 
 ---
 
 ## 🔒 Variáveis de Ambiente
 As configurações sensíveis estão armazenadas no arquivo `.env`:
 ```env
-FIREBASE_api_key=<sua-chave-api>
+FIREBASE_API_KEY=<sua-chave-api>
 FIREBASE_AUTH_DOMAIN=<seu-domínio-auth>
 FIREBASE_PROJECT_ID=<seu-id-projeto>
 FIREBASE_STORAGE_BUCKET=<seu-storage-bucket>
