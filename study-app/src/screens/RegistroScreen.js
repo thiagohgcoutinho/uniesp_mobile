@@ -1,158 +1,186 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
-    View,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    Alert,
-    StyleSheet,
-    KeyboardAvoidingView,
-    ScrollView,
-    TouchableWithoutFeedback,
-    Keyboard,
-    Platform,
-    ActivityIndicator,
-} from 'react-native';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../config/firebaseConfig';
-import { MaterialIcons } from '@expo/vector-icons';
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  StyleSheet,
+  KeyboardAvoidingView,
+  ScrollView,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Platform,
+  ActivityIndicator,
+} from "react-native";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../config/firebaseConfig";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const RegistroScreen = ({ navigation }) => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
-    const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-    const handleRegister = async () => {
-        if (!email || !password) {
-            Alert.alert('Erro', 'Por favor, preencha todos os campos.');
-            return;
-        }
+  const handleRegister = async () => {
+    if (!email || !password) {
+      Alert.alert("Erro", "Por favor, preencha todos os campos.");
+      return;
+    }
 
-        setLoading(true);
+    setLoading(true);
 
-        try {
-            await createUserWithEmailAndPassword(auth, email, password);
-            Alert.alert('Sucesso', 'Conta criada com sucesso!');
-            navigation.goBack(); // Retorna à tela de login
-        } catch (error) {
-            const errorMessage = error.message.includes('auth/email-already-in-use')
-                ? 'O email já está em uso. Tente outro.'
-                : error.message.includes('auth/weak-password')
-                ? 'A senha deve ter pelo menos 6 caracteres.'
-                : 'Erro ao criar conta. Tente novamente mais tarde.';
-            Alert.alert('Erro', errorMessage);
-        } finally {
-            setLoading(false);
-        }
-    };
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      Alert.alert("Sucesso", "Conta criada com sucesso!");
+      navigation.goBack(); // Retorna à tela de login
+    } catch (error) {
+      const errorMessage = error.message.includes("auth/email-already-in-use")
+        ? "O email já está em uso. Tente outro."
+        : error.message.includes("auth/weak-password")
+        ? "A senha deve ter pelo menos 6 caracteres."
+        : "Erro ao criar conta. Tente novamente mais tarde.";
+      Alert.alert("Erro", errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return (
-        <KeyboardAvoidingView
-            style={{ flex: 1 }}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        >
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <ScrollView contentContainerStyle={styles.container}>
-                    <Text style={styles.title}>Criar Conta</Text>
+  return (
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView contentContainerStyle={styles.container}>
+          <Text style={styles.title}>Criar Conta</Text>
 
-                    <TextInput
-                        placeholder="Email"
-                        value={email}
-                        onChangeText={setEmail}
-                        style={styles.input}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                    />
-                    <View style={styles.passwordContainer}>
-                        <TextInput
-                            placeholder="Senha"
-                            value={password}
-                            onChangeText={setPassword}
-                            secureTextEntry={!showPassword}
-                            style={styles.inputPassword}
-                            autoCapitalize="none"
-                        />
-                        <TouchableOpacity
-                            style={styles.passwordToggle}
-                            onPress={() => setShowPassword(!showPassword)}
-                        >
-                            <MaterialIcons
-                                name={showPassword ? 'visibility' : 'visibility-off'}
-                                size={20}
-                                color="#6c757d"
-                            />
-                        </TouchableOpacity>
-                    </View>
+          <TextInput
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            style={styles.input}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
 
-                    <TouchableOpacity
-                        style={styles.button}
-                        onPress={handleRegister}
-                        disabled={loading}
-                    >
-                        {loading ? (
-                            <ActivityIndicator color="#ffffff" />
-                        ) : (
-                            <Text style={styles.buttonText}>Registrar</Text>
-                        )}
-                    </TouchableOpacity>
-                </ScrollView>
-            </TouchableWithoutFeedback>
-        </KeyboardAvoidingView>
-    );
+          {/* Campo de senha com ícone para alternar a visibilidade */}
+          <View style={styles.passwordContainer}>
+            <TextInput
+              placeholder="Senha"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              style={styles.inputPassword}
+              autoCapitalize="none"
+            />
+            <TouchableOpacity
+              style={styles.passwordToggle}
+              onPress={() => setShowPassword(!showPassword)}
+            >
+              <MaterialIcons
+                name={showPassword ? "visibility" : "visibility-off"}
+                size={24}
+                color="#6c757d"
+              />
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleRegister}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#ffffff" />
+            ) : (
+              <>
+                <MaterialIcons name="person-add" size={18} color="#ffffff" />
+                <Text style={styles.buttonText}> Registrar</Text>
+              </>
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={() => navigation.navigate("Login")}
+          >
+            <MaterialIcons name="login" size={18} color="#007bff" />
+            <Text style={styles.loginText}> Já tem uma conta? Faça Login</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
+  );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flexGrow: 1,
-        justifyContent: 'center',
-        padding: 20,
-        backgroundColor: '#ffffff',
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        marginBottom: 20,
-        color: '#343a40',
-    },
-    input: {
-        height: 50,
-        borderColor: '#ced4da',
-        borderWidth: 1,
-        borderRadius: 10,
-        padding: 10,
-        marginBottom: 15,
-        backgroundColor: '#ffffff',
-    },
-    passwordContainer: {
-        position: 'relative',
-        marginBottom: 15,
-    },
-    inputPassword: {
-        height: 50,
-        borderColor: '#ced4da',
-        borderWidth: 1,
-        borderRadius: 10,
-        padding: 10,
-        backgroundColor: '#ffffff',
-    },
-    passwordToggle: {
-        position: 'absolute',
-        right: 15,
-        top: 15,
-    },
-    button: {
-        backgroundColor: '#007bff',
-        paddingVertical: 15,
-        borderRadius: 10,
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: '#ffffff',
-        fontSize: 18,
-        fontWeight: '600',
-    },
+  container: {
+    flexGrow: 1,
+    justifyContent: "center",
+    padding: 20,
+    backgroundColor: "#ffffff",
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 20,
+    color: "#343a40",
+  },
+  input: {
+    height: 50,
+    borderColor: "#ced4da",
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 15,
+    backgroundColor: "#ffffff",
+  },
+  passwordContainer: {
+    position: "relative",
+    marginBottom: 15,
+  },
+  inputPassword: {
+    height: 50,
+    borderColor: "#ced4da",
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: "#ffffff",
+  },
+  passwordToggle: {
+    position: "absolute",
+    right: 15,
+    top: 15,
+  },
+  button: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#007bff",
+    paddingVertical: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  buttonText: {
+    color: "#ffffff",
+    fontSize: 18,
+    fontWeight: "600",
+    marginLeft: 5,
+  },
+  loginButton: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
+  },
+  loginText: {
+    fontSize: 16,
+    color: "#007bff",
+    marginLeft: 5,
+  },
 });
 
 export default RegistroScreen;

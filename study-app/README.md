@@ -1,7 +1,7 @@
 # Study App
 
 ## 📚 Introdução
-O **Study App** é um aplicativo para gerenciamento de cartões de estudo, desenvolvido em React Native. Ele utiliza o Firebase para autenticação e armazenamento de dados, proporcionando uma experiência intuitiva e eficiente para os usuários organizarem suas tarefas e metas de estudo.
+O **Study App** é um aplicativo para gerenciamento de cartões de estudo, desenvolvido em React Native. Ele utiliza o Firebase para autenticação e armazenamento de dados, proporcionando uma experiência intuitiva e eficiente para organizar tarefas e metas de estudo.
 
 ---
 
@@ -14,7 +14,7 @@ Para executar o projeto, você precisará das seguintes ferramentas instaladas:
 
 ---
 
-### 📂 Estrutura de Pastas
+## 📂 Estrutura de Pastas
 Abaixo está a organização das pastas do projeto e uma breve descrição de cada uma:
 
 | Caminho                  | Descrição                                               |
@@ -30,7 +30,6 @@ Abaixo está a organização das pastas do projeto e uma breve descrição de ca
 | ├── **package.json**     | Dependências e scripts do projeto.                     |
 | ├── **eas.json**         | Configurações do EAS (Expo Application Services).      |
 | └── **App.js**           | Arquivo principal do aplicativo.                       |
-
 
 ---
 

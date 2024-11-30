@@ -14,14 +14,17 @@ import {
   Keyboard,
   ActivityIndicator,
 } from "react-native";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../config/firebaseConfig";
+import { MaterialIcons } from "@expo/vector-icons";
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // Estado para controlar a visibilidade da senha
   const [loading, setLoading] = useState(false);
 
+  // Função para lidar com login
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert("Erro", "Por favor, preencha todos os campos.");
@@ -39,6 +42,27 @@ const LoginScreen = ({ navigation }) => {
       );
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Função para redefinir senha
+  const handleForgotPassword = async () => {
+    if (!email) {
+      Alert.alert("Erro", "Por favor, insira o email para redefinição de senha.");
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      Alert.alert(
+        "Sucesso",
+        "Um email de redefinição de senha foi enviado. Verifique sua caixa de entrada."
+      );
+    } catch (error) {
+      Alert.alert(
+        "Erro",
+        "Não foi possível enviar o email de redefinição. Verifique o email informado."
+      );
     }
   };
 
@@ -61,14 +85,28 @@ const LoginScreen = ({ navigation }) => {
             keyboardType="email-address"
             autoCapitalize="none"
           />
-          <TextInput
-            placeholder="Senha"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            style={styles.input}
-            autoCapitalize="none"
-          />
+
+          {/* Campo de senha com ícone para alternar a visibilidade */}
+          <View style={styles.passwordContainer}>
+            <TextInput
+              placeholder="Senha"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              style={styles.inputPassword}
+              autoCapitalize="none"
+            />
+            <TouchableOpacity
+              style={styles.passwordToggle}
+              onPress={() => setShowPassword(!showPassword)}
+            >
+              <MaterialIcons
+                name={showPassword ? "visibility" : "visibility-off"}
+                size={24}
+                color="#6c757d"
+              />
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity
             style={styles.button}
@@ -78,12 +116,23 @@ const LoginScreen = ({ navigation }) => {
             {loading ? (
               <ActivityIndicator color="#ffffff" />
             ) : (
-              <Text style={styles.buttonText}>Entrar</Text>
+              <>
+                <MaterialIcons name="login" size={18} color="#ffffff" />
+                <Text style={styles.buttonText}> Entrar</Text>
+              </>
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => navigation.navigate("Registro")}>
-            <Text style={styles.registerText}>Criar Conta</Text>
+          <TouchableOpacity onPress={handleForgotPassword}>
+            <Text style={styles.forgotPasswordText}>Esqueci minha senha</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.registerButton}
+            onPress={() => navigation.navigate("Registro")}
+          >
+            <MaterialIcons name="person-add" size={18} color="#007bff" />
+            <Text style={styles.registerText}> Criar Conta</Text>
           </TouchableOpacity>
         </ScrollView>
       </TouchableWithoutFeedback>
@@ -126,23 +175,54 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     backgroundColor: "#ffffff",
   },
+  passwordContainer: {
+    position: "relative",
+    marginBottom: 15,
+  },
+  inputPassword: {
+    height: 50,
+    borderColor: "#ced4da",
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 10,
+    backgroundColor: "#ffffff",
+  },
+  passwordToggle: {
+    position: "absolute",
+    right: 15,
+    top: 15,
+  },
   button: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "#007bff",
     paddingVertical: 15,
     borderRadius: 10,
-    alignItems: "center",
     marginBottom: 10,
   },
   buttonText: {
     color: "#ffffff",
     fontSize: 18,
     fontWeight: "600",
+    marginLeft: 5,
+  },
+  forgotPasswordText: {
+    fontSize: 14,
+    color: "#007bff",
+    textAlign: "center",
+    marginTop: 10,
+  },
+  registerButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 15,
   },
   registerText: {
     fontSize: 16,
     color: "#007bff",
-    textAlign: "center",
-    marginTop: 15,
+    marginLeft: 5,
   },
 });
 
