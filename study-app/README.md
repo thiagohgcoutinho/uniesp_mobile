@@ -55,7 +55,10 @@ Abaixo está a organização das pastas do projeto e uma breve descrição de ca
    - Exibe os cartões agrupados por status: Backlog, Em Progresso, Concluído.
    - Destaque para tarefas próximas ao vencimento (nos próximos 15 dias).
    - Permite navegar para edição ou criação de cartões.
-   - **Melhoria**: Adicionado alerta de confirmação ao clicar no botão de logout.
+   - **Melhorias**:
+     - Melhorias no design dos botões, com ícones e cores mais atrativas.
+     - Adição de bordas coloridas para indicar prazos.
+     - Ícone de alerta para tarefas em atraso ou próximas ao vencimento.
 
 2. **`EdicaoCartaoScreen.js`**
    - Tela para criar ou editar um cartão.
@@ -68,6 +71,9 @@ Abaixo está a organização das pastas do projeto e uma breve descrição de ca
 3. **`LoginScreen.js`**
    - Tela para autenticar o usuário com email e senha.
    - Navegação para a tela de registro em caso de novo usuário.
+   - **Melhorias**:
+     - Adição de um botão "Esqueci minha senha", permitindo redefinição de senha via Firebase.
+     - Botões com ícones para melhorar o visual e a usabilidade.
 
 4. **`RegistroScreen.js`**
    - Tela para criar um novo usuário no Firebase Authentication.
@@ -76,10 +82,11 @@ Abaixo está a organização das pastas do projeto e uma breve descrição de ca
 5. **`TarefasVencimentoProximoScreen.js`**
    - Exibe uma lista de tarefas com vencimento nos próximos 15 dias.
    - Inclui informações detalhadas como título, status e data/hora de término.
-   - **Melhoria**:
-     - Exclui automaticamente tarefas com status "Concluído".
-     - Botões de swipe redesenhados, com ícones e cores suaves.
-     - Suporte para ajuste responsivo, mantendo os cartões esticados em dispositivos maiores.
+   - **Melhorias**:
+     - Refeito o design da tela com botões e cores mais atrativos.
+     - Adicionado recurso de deslizar cartões para a esquerda ou direita.
+       - Ao deslizar para a direita, o cartão é marcado como concluído e automaticamente removido da lista.
+       - Ao deslizar para a esquerda, o cartão é excluído.
 
 6. **`ConfiguracaoPerfilScreen.js`**
    - Permite que o usuário configure ou edite seu perfil.
@@ -108,12 +115,14 @@ O projeto utiliza as seguintes bibliotecas:
 ---
 
 ## 🔥 Melhorias Implementadas
-Além das funcionalidades básicas, foram realizadas melhorias para incrementar a experiência do usuário:
 1. Confirmação antes de logout para evitar saídas acidentais.
 2. Interface responsiva para tablets e dispositivos grandes, com elementos centralizados.
 3. Estilização aprimorada para os modais de seleção de data e status.
 4. Swipe com botões redesenhados e integrados ao contexto visual dos cartões.
 5. Tela de configuração do perfil com preenchimento automático e suporte para edição.
+6. Botões melhorados no `LoginScreen` com a adição de ícones e botão "Esqueci minha senha".
+7. Reestilização completa da `TarefasVencimentoProximoScreen`, com suporte para deslizar cartões e exclusão automática de tarefas concluídas.
+8. Design refinado na `ListaCartaoScreen`, com ícones de alerta e bordas coloridas para tarefas próximas ao vencimento.
 
 ---
 
