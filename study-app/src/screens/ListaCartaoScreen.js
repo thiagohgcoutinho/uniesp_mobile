@@ -5,7 +5,6 @@ import {
     FlatList,
     TouchableOpacity,
     StyleSheet,
-    Alert,
 } from 'react-native';
 import CartoesEstudoContext from '../contexts/CartoesEstudoContext';
 import { MaterialIcons } from 'react-native-vector-icons';
@@ -13,21 +12,25 @@ import { MaterialIcons } from 'react-native-vector-icons';
 const ListaCartaoScreen = ({ navigation }) => {
     const { cartoes, excluirCartao } = useContext(CartoesEstudoContext);
 
-    const confirmarExclusao = (id) => {
-        Alert.alert("Excluir Cartão", "Tem certeza que deseja excluir este cartão?", [
-            { text: "Cancelar", style: "cancel" },
-            { text: "Excluir", onPress: () => excluirCartao(id), style: "destructive" }
-        ]);
-    };
-
     const renderizarCartao = ({ item }) => {
-        let cardStyle = styles.card;
-        if (item.status === 'backlog') {
-            cardStyle = { ...styles.card, ...styles.cardBacklog };
-        } else if (item.status === 'done') {
-            cardStyle = { ...styles.card, ...styles.cardDone };
+        const hoje = new Date();
+        const dataTermino = new Date(item.dataTermino);
+        const diferencaDias = (dataTermino - hoje) / (1000 * 60 * 60 * 24);
+
+        // Define a cor da borda
+        let cardStyle = { ...styles.card };
+        if (item.status === 'done') {
+            cardStyle = { ...cardStyle, ...styles.cardDone };
         } else if (item.status === 'in_progress') {
-            cardStyle = { ...styles.card, ...styles.cardInProgress };
+            if (diferencaDias > 15) {
+                cardStyle = { ...cardStyle, ...styles.cardInProgress };
+            } else if (diferencaDias <= 15 && diferencaDias > 7) {
+                cardStyle = { ...cardStyle, ...styles.cardWarning };
+            } else if (diferencaDias <= 7 && diferencaDias >= 0) {
+                cardStyle = { ...cardStyle, ...styles.cardAlert };
+            }
+        } else if (item.status === 'backlog') {
+            cardStyle = diferencaDias > 15 ? { ...cardStyle, ...styles.cardBacklog } : { ...cardStyle, ...styles.cardWarning };
         }
 
         const traduzirStatus = (status) => {
@@ -45,15 +48,32 @@ const ListaCartaoScreen = ({ navigation }) => {
 
         return (
             <View style={cardStyle}>
-                <Text style={styles.cardTitle}>{item.titulo}</Text>
+                <View style={styles.cardHeader}>
+                    {/* Ícone de alerta para cartões em backlog com menos de 15 dias */}
+                    {item.status === 'backlog' && diferencaDias <= 15 && diferencaDias >= 0 && (
+                        <MaterialIcons
+                            name="warning"
+                            size={18}
+                            color="#ffa500"
+                            style={styles.alertIcon}
+                        />
+                    )}
+                    <Text style={styles.cardTitle}>{item.titulo}</Text>
+                </View>
                 <Text style={styles.cardText}>Status: {traduzirStatus(item.status)}</Text>
-                <Text style={styles.cardText}>Data: {new Date(item.dataTermino).toLocaleDateString()}</Text>
-                {item.notas ? <Text style={styles.cardNotes}>{item.notas}</Text> : null}
+                <Text style={styles.cardText}>Data: {dataTermino.toLocaleDateString()}</Text>
+                {item.notas && <Text style={styles.cardNotes}>{item.notas}</Text>}
                 <View style={styles.cardButtons}>
-                    <TouchableOpacity onPress={() => navigation.navigate('EdicaoCartao', { id: item.id })} style={styles.iconButton}>
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('EdicaoCartao', { id: item.id })}
+                        style={styles.iconButton}
+                    >
                         <MaterialIcons name="edit" size={18} color="#007bff" />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => confirmarExclusao(item.id)} style={styles.iconButton}>
+                    <TouchableOpacity
+                        onPress={() => confirmarExclusao(item.id)}
+                        style={styles.iconButton}
+                    >
                         <MaterialIcons name="delete" size={18} color="#ff6347" />
                     </TouchableOpacity>
                 </View>
@@ -61,9 +81,17 @@ const ListaCartaoScreen = ({ navigation }) => {
         );
     };
 
-    const cartoesAgrupadosPorStatus = (status) => cartoes.filter(cartao => cartao.status === status);
+    const confirmarExclusao = (id) => {
+        Alert.alert(
+            "Excluir Cartão",
+            "Tem certeza que deseja excluir este cartão?",
+            [
+                { text: "Cancelar", style: "cancel" },
+                { text: "Excluir", onPress: () => excluirCartao(id), style: "destructive" }
+            ]
+        );
+    };
 
-    // Filtra os cartões próximos ao vencimento (15 dias)
     const cartoesVencimentoProximo = cartoes.filter(cartao => {
         const dataTermino = new Date(cartao.dataTermino);
         const diferencaDias = (dataTermino - new Date()) / (1000 * 60 * 60 * 24);
@@ -72,48 +100,53 @@ const ListaCartaoScreen = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            {/* Botão para ver tarefas próximas ao vencimento */}
-            <TouchableOpacity style={styles.dueSoonButton} onPress={() => navigation.navigate('TarefasVencimentoProximo')}>
-                <Text style={styles.dueSoonButtonText}>Tarefas a Vencer: {cartoesVencimentoProximo.length}</Text>
+            {/* Botão melhorado para "Tarefas a Vencer" */}
+            <TouchableOpacity
+                style={styles.dueSoonButton}
+                onPress={() => navigation.navigate('TarefasVencimentoProximo')}
+            >
+                <MaterialIcons name="warning" size={20} color="#ffffff" />
+                <Text style={styles.dueSoonButtonText}>
+                    Tarefas a Vencer: {cartoesVencimentoProximo.length}
+                </Text>
             </TouchableOpacity>
+
+            {/* Renderização por status */}
+            <Text style={styles.sectionTitle}>Backlog</Text>
+            <FlatList
+                data={cartoes.filter(cartao => cartao.status === 'backlog')}
+                keyExtractor={(item) => item.id}
+                renderItem={renderizarCartao}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.flatListContainer}
+            />
 
             <Text style={styles.sectionTitle}>Em Progresso</Text>
             <FlatList
-                data={cartoesAgrupadosPorStatus('in_progress')}
+                data={cartoes.filter(cartao => cartao.status === 'in_progress')}
                 keyExtractor={(item) => item.id}
                 renderItem={renderizarCartao}
-                horizontal={true}
+                horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.flatListContainer}
             />
-
-            <View style={styles.divider} />
 
             <Text style={styles.sectionTitle}>Concluído</Text>
             <FlatList
-                data={cartoesAgrupadosPorStatus('done')}
+                data={cartoes.filter(cartao => cartao.status === 'done')}
                 keyExtractor={(item) => item.id}
                 renderItem={renderizarCartao}
-                horizontal={true}
+                horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.flatListContainer}
             />
 
-            <View style={styles.divider} />
-
-            <Text style={styles.sectionTitle}>Backlog</Text>
-            <FlatList
-                data={cartoesAgrupadosPorStatus('backlog')}
-                keyExtractor={(item) => item.id}
-                renderItem={renderizarCartao}
-                horizontal={true}
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.flatListContainer}
-            />
-
-            <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('EdicaoCartao')}>
+            <TouchableOpacity
+                style={styles.floatingButton}
+                onPress={() => navigation.navigate('EdicaoCartao')}
+            >
                 <MaterialIcons name="add" size={24} color="#ffffff" />
-                <Text style={styles.addButtonText}>Adicionar Novo Cartão</Text>
             </TouchableOpacity>
         </View>
     );
@@ -126,46 +159,56 @@ const styles = StyleSheet.create({
         backgroundColor: '#f7f7f7',
     },
     dueSoonButton: {
-        backgroundColor: '#ff4500',
-        padding: 12,
-        borderRadius: 8,
-        justifyContent: 'center',
+        flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 10,
+        justifyContent: 'center',
+        backgroundColor: '#ff4500',
+        padding: 15,
+        borderRadius: 10,
+        marginBottom: 15,
     },
     dueSoonButtonText: {
         color: '#ffffff',
         fontSize: 16,
         fontWeight: 'bold',
+        marginLeft: 10,
     },
     sectionTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        marginTop: 15,
-        marginBottom: 8,
+        marginVertical: 10,
     },
     flatListContainer: {
         paddingBottom: 10,
     },
     card: {
         backgroundColor: '#ffffff',
-        padding: 10,
-        marginHorizontal: 5,
+        padding: 15,
+        marginHorizontal: 8,
         borderRadius: 8,
-        borderWidth: 1,
-        borderColor: '#ddd',
-        width: 160,
-        minHeight: 120,
+        elevation: 2,
+        width: 180,
         justifyContent: 'space-between',
     },
     cardBacklog: {
-        borderColor: '#ddd',
+        borderColor: '#d3d3d3',
+        borderWidth: 2,
     },
     cardDone: {
         borderColor: '#32cd32',
+        borderWidth: 2,
     },
     cardInProgress: {
         borderColor: '#007bff',
+        borderWidth: 2,
+    },
+    cardWarning: {
+        borderColor: '#ffa500',
+        borderWidth: 2,
+    },
+    cardAlert: {
+        borderColor: '#ff4500',
+        borderWidth: 2,
     },
     cardTitle: {
         fontSize: 14,
@@ -186,28 +229,29 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'flex-end',
     },
+    cardHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    alertIcon: {
+        marginRight: 5,
+    },
     iconButton: {
         paddingHorizontal: 4,
         paddingVertical: 2,
     },
-    addButton: {
-        backgroundColor: '#6c757d',
-        padding: 10,
-        borderRadius: 6,
-        flexDirection: 'row',
-        alignItems: 'center',
+    floatingButton: {
+        position: 'absolute',
+        bottom: 20,
+        right: 20,
+        backgroundColor: '#007bff',
+        width: 60,
+        height: 60,
+        borderRadius: 30,
         justifyContent: 'center',
-        marginTop: 15,
-    },
-    addButtonText: {
-        color: '#ffffff',
-        fontSize: 16,
-        marginLeft: 8,
-    },
-    divider: {
-        borderBottomColor: '#cccccc',
-        borderBottomWidth: 1,
-        marginVertical: 8,
+        alignItems: 'center',
+        elevation: 5,
     },
 });
 

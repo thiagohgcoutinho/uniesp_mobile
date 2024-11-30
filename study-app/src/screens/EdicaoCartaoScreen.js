@@ -9,7 +9,8 @@ import {
     ScrollView,
     TouchableWithoutFeedback,
     Keyboard,
-    Platform
+    Platform,
+    Alert,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
@@ -35,11 +36,16 @@ const EdicaoCartaoScreen = ({ route, navigation }) => {
             status,
             dataTermino: dataTermino.toISOString()
         };
+
         if (id) {
             atualizarCartao(id, dadosCartao);
         } else {
             adicionarCartao(dadosCartao);
         }
+
+        // Exibir mensagem de confirmação
+        Alert.alert('Sucesso', 'As alterações no cartão foram salvas com sucesso!');
+
         navigation.goBack();
     };
 
@@ -76,14 +82,16 @@ const EdicaoCartaoScreen = ({ route, navigation }) => {
                         value={titulo}
                         onChangeText={setTitulo}
                         placeholder="Título do Cartão..."
+                        placeholderTextColor="#aaa"
                     />
 
                     <Text style={styles.label}>Notas:</Text>
                     <TextInput
-                        style={[styles.input, { height: 100 }]}
+                        style={[styles.input, styles.textArea]}
                         value={notas}
                         onChangeText={setNotas}
                         placeholder="Insira uma descrição..."
+                        placeholderTextColor="#aaa"
                         multiline
                     />
 
@@ -106,7 +114,7 @@ const EdicaoCartaoScreen = ({ route, navigation }) => {
 
                     <Text style={styles.label}>Status:</Text>
                     <TouchableOpacity
-                        style={styles.input}
+                        style={[styles.input, styles.picker]}
                         onPress={() => setMostraPickerStatus(true)}
                     >
                         <Text>{traduzirStatus(status)}</Text>
@@ -151,31 +159,53 @@ const styles = StyleSheet.create({
         borderColor: '#ddd',
         backgroundColor: '#fff',
         padding: 12,
-        borderRadius: 8,
+        borderRadius: 10,
         fontSize: 16,
         marginBottom: 20,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+    },
+    textArea: {
+        height: 100,
+    },
+    picker: {
+        justifyContent: 'center',
     },
     button: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#007bff',
-        padding: 10,
-        borderRadius: 8,
+        padding: 12,
+        borderRadius: 10,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
     },
     saveButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#32cd32',
-        padding: 10,
-        borderRadius: 8,
+        backgroundColor: '#28a745',
+        padding: 12,
+        borderRadius: 10,
         marginTop: 20,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
     },
     buttonText: {
         color: '#fff',
         fontSize: 16,
         marginLeft: 8,
+        fontWeight: 'bold',
     },
     selectedDateLabel: {
         fontSize: 16,
