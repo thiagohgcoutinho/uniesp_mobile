@@ -11,8 +11,8 @@ import {
     Keyboard,
     Platform,
     Alert,
+    Modal,
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { MaterialIcons } from 'react-native-vector-icons';
 import CartoesEstudoContext from '../contexts/CartoesEstudoContext';
@@ -28,13 +28,25 @@ const EdicaoCartaoScreen = ({ route, navigation }) => {
     const [dataTermino, setDataTermino] = useState(cartao.dataTermino ? new Date(cartao.dataTermino) : new Date());
     const [mostraDateTimePicker, setMostraDateTimePicker] = useState(false);
     const [mostraPickerStatus, setMostraPickerStatus] = useState(false);
+    const [statusSelecionado, setStatusSelecionado] = useState(status);
+    const [erros, setErros] = useState({});
+
+    const validarCampos = () => {
+        const novosErros = {};
+        if (!titulo.trim()) novosErros.titulo = 'O título é obrigatório.';
+        if (!notas.trim()) novosErros.notas = 'As notas são obrigatórias.';
+        setErros(novosErros);
+        return Object.keys(novosErros).length === 0;
+    };
 
     const salvar = () => {
+        if (!validarCampos()) return;
+
         const dadosCartao = {
             titulo,
             notas,
             status,
-            dataTermino: dataTermino.toISOString()
+            dataTermino: dataTermino.toISOString(),
         };
 
         if (id) {
@@ -43,9 +55,7 @@ const EdicaoCartaoScreen = ({ route, navigation }) => {
             adicionarCartao(dadosCartao);
         }
 
-        // Exibir mensagem de confirmação
         Alert.alert('Sucesso', 'As alterações no cartão foram salvas com sucesso!');
-
         navigation.goBack();
     };
 
@@ -69,6 +79,11 @@ const EdicaoCartaoScreen = ({ route, navigation }) => {
         ocultarDateTimePicker();
     };
 
+    const confirmarStatus = () => {
+        setStatus(statusSelecionado);
+        setMostraPickerStatus(false);
+    };
+
     return (
         <KeyboardAvoidingView
             style={{ flex: 1 }}
@@ -78,60 +93,91 @@ const EdicaoCartaoScreen = ({ route, navigation }) => {
                 <ScrollView contentContainerStyle={styles.container}>
                     <Text style={styles.label}>Título:</Text>
                     <TextInput
-                        style={styles.input}
+                        style={[
+                            styles.input,
+                            erros.titulo && styles.inputErro,
+                        ]}
                         value={titulo}
-                        onChangeText={setTitulo}
+                        onChangeText={(text) => {
+                            setTitulo(text);
+                            setErros((prev) => ({ ...prev, titulo: null }));
+                        }}
                         placeholder="Título do Cartão..."
                         placeholderTextColor="#aaa"
                     />
+                    {erros.titulo && <Text style={styles.mensagemErro}>{erros.titulo}</Text>}
 
                     <Text style={styles.label}>Notas:</Text>
                     <TextInput
-                        style={[styles.input, styles.textArea]}
+                        style={[
+                            styles.input,
+                            styles.textArea,
+                            erros.notas && styles.inputErro,
+                        ]}
                         value={notas}
-                        onChangeText={setNotas}
+                        onChangeText={(text) => {
+                            setNotas(text);
+                            setErros((prev) => ({ ...prev, notas: null }));
+                        }}
                         placeholder="Insira uma descrição..."
                         placeholderTextColor="#aaa"
                         multiline
                     />
+                    {erros.notas && <Text style={styles.mensagemErro}>{erros.notas}</Text>}
 
                     <Text style={styles.label}>Data e Hora de Término:</Text>
-                    <TouchableOpacity style={styles.button} onPress={exibirDateTimePicker}>
+                    <TouchableOpacity
+                        style={styles.button}
+                        onPress={exibirDateTimePicker}
+                    >
                         <MaterialIcons name="date-range" size={20} color="#ffffff" />
-                        <Text style={styles.buttonText}>Escolher Data e Hora</Text>
+                        <Text style={styles.buttonText}>
+                            {dataTermino.toLocaleDateString()} às {dataTermino.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </Text>
                     </TouchableOpacity>
                     <DateTimePickerModal
                         isVisible={mostraDateTimePicker}
                         mode="datetime"
                         onConfirm={confirmarDateTime}
                         onCancel={ocultarDateTimePicker}
+                        confirmTextIOS="Confirmar"
+                        cancelTextIOS="Cancelar"
                         themeVariant="light"
                         display={Platform.OS === 'ios' ? 'inline' : 'spinner'}
                     />
-                    <Text style={styles.selectedDateLabel}>
-                        Data selecionada: {dataTermino.toLocaleDateString()} às {dataTermino.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </Text>
 
                     <Text style={styles.label}>Status:</Text>
                     <TouchableOpacity
-                        style={[styles.input, styles.picker]}
+                        style={styles.button}
                         onPress={() => setMostraPickerStatus(true)}
                     >
-                        <Text>{traduzirStatus(status)}</Text>
+                        <Text style={styles.buttonText}>{traduzirStatus(status)}</Text>
                     </TouchableOpacity>
-                    {mostraPickerStatus && (
-                        <Picker
-                            selectedValue={status}
-                            onValueChange={(itemValue) => {
-                                setStatus(itemValue);
-                                setMostraPickerStatus(false);
-                            }}
-                        >
-                            <Picker.Item label="Backlog" value="backlog" />
-                            <Picker.Item label="Em Progresso" value="in_progress" />
-                            <Picker.Item label="Concluído" value="done" />
-                        </Picker>
-                    )}
+                    <Modal
+                        transparent={true}
+                        visible={mostraPickerStatus}
+                        animationType="fade"
+                    >
+                        <View style={styles.modal}>
+                            <View style={styles.modalContent}>
+                                {['backlog', 'in_progress', 'done'].map((valor) => (
+                                    <TouchableOpacity
+                                        key={valor}
+                                        style={[
+                                            styles.modalItem,
+                                            statusSelecionado === valor && styles.itemSelecionado,
+                                        ]}
+                                        onPress={() => setStatusSelecionado(valor)}
+                                    >
+                                        <Text>{traduzirStatus(valor)}</Text>
+                                    </TouchableOpacity>
+                                ))}
+                                <TouchableOpacity style={styles.buttonConfirmar} onPress={confirmarStatus}>
+                                    <Text style={styles.buttonText}>Confirmar</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>
 
                     <TouchableOpacity style={styles.saveButton} onPress={salvar}>
                         <MaterialIcons name="save" size={20} color="#ffffff" />
@@ -162,17 +208,17 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         fontSize: 16,
         marginBottom: 20,
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
+    },
+    inputErro: {
+        borderColor: '#e63946',
+        borderWidth: 1,
+    },
+    mensagemErro: {
+        color: '#e63946',
+        marginBottom: 10,
     },
     textArea: {
         height: 100,
-    },
-    picker: {
-        justifyContent: 'center',
     },
     button: {
         flexDirection: 'row',
@@ -181,11 +227,11 @@ const styles = StyleSheet.create({
         backgroundColor: '#007bff',
         padding: 12,
         borderRadius: 10,
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
+    },
+    buttonText: {
+        color: '#fff',
+        fontSize: 16,
+        marginLeft: 8,
     },
     saveButton: {
         flexDirection: 'row',
@@ -195,22 +241,38 @@ const styles = StyleSheet.create({
         padding: 12,
         borderRadius: 10,
         marginTop: 20,
-        elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
     },
-    buttonText: {
-        color: '#fff',
-        fontSize: 16,
-        marginLeft: 8,
-        fontWeight: 'bold',
+    modal: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
-    selectedDateLabel: {
-        fontSize: 16,
-        marginBottom: 15,
-        color: '#555',
+    modalContent: {
+        backgroundColor: '#fff',
+        padding: 20,
+        borderRadius: 10,
+        width: '80%',
+        alignItems: 'center',
+    },
+    modalItem: {
+        fontSize: 18,
+        marginVertical: 10,
+        padding: 10,
+        borderRadius: 5,
+        width: '100%',
+        textAlign: 'center',
+    },
+    itemSelecionado: {
+        backgroundColor: '#d3d3d3',
+    },
+    buttonConfirmar: {
+        backgroundColor: '#007bff',
+        padding: 12,
+        borderRadius: 10,
+        marginTop: 20,
+        width: '100%',
+        alignItems: 'center',
     },
 });
 
