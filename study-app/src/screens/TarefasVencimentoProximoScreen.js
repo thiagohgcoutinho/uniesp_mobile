@@ -1,167 +1,248 @@
-import React, { useContext } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import CartoesEstudoContext from '../contexts/CartoesEstudoContext';
-import { MaterialIcons } from 'react-native-vector-icons';
-import { filtrarCartoesAVencer } from '../utils';
+import React, { useContext } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  Alert,
+  TouchableOpacity,
+} from "react-native";
+import CartoesEstudoContext from "../contexts/CartoesEstudoContext";
+import { Swipeable } from "react-native-gesture-handler";
+import { MaterialIcons } from "@expo/vector-icons";
+
+const agruparPorData = (cartoes) => {
+  const hoje = new Date();
+  const amanha = new Date(hoje);
+  amanha.setDate(hoje.getDate() + 1);
+
+  const hojeString = hoje.toDateString();
+  const amanhaString = amanha.toDateString();
+
+  const grupos = {
+    Hoje: [],
+    Amanhã: [],
+    "Próximos 7 Dias": [],
+  };
+
+  cartoes
+    .filter((cartao) => cartao.status !== "done") // Filtra apenas os cartões backlog e em progresso
+    .forEach((cartao) => {
+      const dataTermino = new Date(cartao.dataTermino).toDateString();
+
+      if (dataTermino === hojeString) {
+        grupos.Hoje.push(cartao);
+      } else if (dataTermino === amanhaString) {
+        grupos.Amanhã.push(cartao);
+      } else if (new Date(cartao.dataTermino) - hoje <= 7 * 24 * 60 * 60 * 1000) {
+        grupos["Próximos 7 Dias"].push(cartao);
+      }
+    });
+
+  return grupos;
+};
+
+const traduzirStatus = (status) => {
+  switch (status) {
+    case "backlog":
+      return "Backlog";
+    case "in_progress":
+      return "Em Progresso";
+    default:
+      return status;
+  }
+};
 
 const TarefasVencimentoProximoScreen = () => {
-    const { cartoes, atualizarCartao } = useContext(CartoesEstudoContext);
+  const { cartoes, atualizarCartao, excluirCartao } = useContext(
+    CartoesEstudoContext
+  );
 
-    const cartoesVencimentoProximo = filtrarCartoesAVencer(cartoes);
+  const grupos = agruparPorData(cartoes);
 
-    const traduzirStatus = (status) => {
-        switch (status) {
-            case 'backlog':
-                return 'Backlog';
-            case 'in_progress':
-                return 'Em Progresso';
-            case 'done':
-                return 'Concluído';
-            default:
-                return status;
-        }
-    };
+  const marcarComoConcluido = (cartao) => {
+    atualizarCartao(cartao.id, { ...cartao, status: "done" });
+  };
 
-    const marcarComoConcluido = (cartao) => {
-        Alert.alert(
-            'Confirmar',
-            `Tem certeza que deseja marcar o cartão "${cartao.titulo}" como concluído?`,
-            [
-                { text: 'Cancelar', style: 'cancel' },
-                {
-                    text: 'Confirmar',
-                    onPress: () =>
-                        atualizarCartao(cartao.id, { ...cartao, status: 'done' }),
-                },
-            ]
-        );
-    };
+  const confirmarExclusao = (id) => {
+    Alert.alert(
+      "Excluir Cartão",
+      "Tem certeza que deseja excluir este cartão?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Excluir", onPress: () => excluirCartao(id), style: "destructive" },
+      ]
+    );
+  };
 
-    const marcarComoEmProgresso = (cartao) => {
-        atualizarCartao(cartao.id, { ...cartao, status: 'in_progress' });
-    };
-
-    const renderizarCartao = ({ item }) => {
-        const dataTermino = new Date(item.dataTermino);
-        const diferencaDias = (dataTermino - new Date()) / (1000 * 60 * 60 * 24);
-
-        let cardStyle = { ...styles.card };
-        if (diferencaDias <= 7) {
-            cardStyle = { ...cardStyle, ...styles.cardUrgent };
-        } else if (diferencaDias <= 15) {
-            cardStyle = { ...cardStyle, ...styles.cardWarning };
-        }
-
-        return (
-            <View style={cardStyle}>
-                <Text style={styles.cardTitle}>{item.titulo}</Text>
-                <Text>Status: {traduzirStatus(item.status)}</Text>
-                <Text>Data/Hora de Término: {dataTermino.toLocaleString()}</Text>
-                {item.notas && <Text style={styles.cardNotes}>Notas: {item.notas}</Text>}
-
-                {item.status === 'in_progress' && (
-                    <TouchableOpacity
-                        style={styles.completeButton}
-                        onPress={() => marcarComoConcluido(item)}
-                    >
-                        <MaterialIcons name="check-circle" size={20} color="#32cd32" />
-                        <Text style={styles.completeButtonText}>Marcar como Concluído</Text>
-                    </TouchableOpacity>
-                )}
-
-                {item.status === 'backlog' && (
-                    <TouchableOpacity
-                        style={styles.inProgressButton}
-                        onPress={() => marcarComoEmProgresso(item)}
-                    >
-                        <MaterialIcons name="play-circle" size={20} color="#007bff" />
-                        <Text style={styles.inProgressButtonText}>
-                            Marcar como Em Progresso
-                        </Text>
-                    </TouchableOpacity>
-                )}
-            </View>
-        );
-    };
+  const renderizarAcoesSwipe = (cartao, tipo) => {
+    const isExcluir = tipo === "excluir";
+    const actionStyle = isExcluir
+      ? styles.swipeDeleteContainer
+      : styles.swipeCompleteContainer;
+    const iconName = isExcluir ? "delete" : "check";
+    const iconColor = isExcluir ? "#dc3545" : "#28a745";
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.header}>
-                Tarefas a Vencer ({cartoesVencimentoProximo.length})
-            </Text>
-            <FlatList
-                data={cartoesVencimentoProximo}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={renderizarCartao}
-            />
-        </View>
+      <View style={actionStyle}>
+        <TouchableOpacity
+          onPress={
+            isExcluir
+              ? () => confirmarExclusao(cartao.id)
+              : () => marcarComoConcluido(cartao)
+          }
+          style={styles.swipeButton}
+        >
+          <MaterialIcons name={iconName} size={24} color={iconColor} />
+        </TouchableOpacity>
+      </View>
     );
+  };
+
+  const renderizarCartao = ({ item }) => {
+    const dataTermino = new Date(item.dataTermino);
+    const diferencaDias = (dataTermino - new Date()) / (1000 * 60 * 60 * 24);
+
+    let cardStyle = { ...styles.card };
+    if (diferencaDias <= 3) {
+      cardStyle = { ...cardStyle, ...styles.cardUrgent };
+    } else if (diferencaDias <= 7) {
+      cardStyle = { ...cardStyle, ...styles.cardWarning };
+    }
+
+    return (
+      <Swipeable
+        renderLeftActions={() => renderizarAcoesSwipe(item, "excluir")}
+        renderRightActions={() => renderizarAcoesSwipe(item, "concluir")}
+      >
+        <View style={cardStyle}>
+          <Text style={styles.cardTitle}>{item.titulo}</Text>
+          <Text style={styles.cardText}>
+            Status: <Text style={styles.cardInfo}>{traduzirStatus(item.status)}</Text>
+          </Text>
+          <Text style={styles.cardText}>
+            Vencimento:{" "}
+            <Text style={styles.cardInfo}>
+              {dataTermino.toLocaleDateString()} às{" "}
+              {dataTermino.toLocaleTimeString()}
+            </Text>
+          </Text>
+          {item.notas && (
+            <Text style={styles.cardNotes}>Notas: {item.notas}</Text>
+          )}
+        </View>
+      </Swipeable>
+    );
+  };
+
+  const renderizarGrupo = (titulo, dados) => (
+    <View key={titulo}>
+      <Text style={styles.sectionTitle}>{titulo}</Text>
+      <FlatList
+        data={dados}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={renderizarCartao}
+        contentContainerStyle={styles.flatListContainer}
+      />
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      {Object.entries(grupos).map(([titulo, dados]) =>
+        dados.length ? renderizarGrupo(titulo, dados) : null
+      )}
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 10,
-        backgroundColor: '#f7f7f7',
-    },
-    header: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 20,
-        textAlign: 'center',
-    },
-    card: {
-        backgroundColor: '#ffffff',
-        padding: 15,
-        margin: 8,
-        borderRadius: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2,
-    },
-    cardWarning: {
-        borderColor: '#ffa500',
-        borderWidth: 2,
-    },
-    cardUrgent: {
-        borderColor: '#ff4500',
-        borderWidth: 2,
-    },
-    cardTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 5,
-    },
-    cardNotes: {
-        fontSize: 14,
-        color: '#555',
-        marginTop: 5,
-    },
-    completeButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 10,
-    },
-    completeButtonText: {
-        fontSize: 14,
-        color: '#32cd32',
-        marginLeft: 5,
-        fontWeight: 'bold',
-    },
-    inProgressButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 10,
-    },
-    inProgressButtonText: {
-        fontSize: 14,
-        color: '#007bff',
-        marginLeft: 5,
-        fontWeight: 'bold',
-    },
+  container: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: "#f7f7f7",
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+    marginTop: 20,
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 15,
+    marginVertical: 5,
+    marginHorizontal: 10,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    height: 100, // Altura ajustada
+    justifyContent: "space-between",
+  },
+  cardWarning: {
+    borderColor: "#ffc107",
+    borderWidth: 2,
+  },
+  cardUrgent: {
+    borderColor: "#ff4500",
+    borderWidth: 2,
+  },
+  swipeCompleteContainer: {
+    backgroundColor: "#d4edda",
+    borderColor: "#28a745",
+    borderWidth: 2,
+    justifyContent: "center",
+    alignItems: "center",
+    height: 100, // Igual à altura do cartão
+    width: 100, // Quadrado
+    borderRadius: 10,
+    marginVertical: 5,
+  },
+  swipeDeleteContainer: {
+    backgroundColor: "#f8d7da",
+    borderColor: "#dc3545",
+    borderWidth: 2,
+    justifyContent: "center",
+    alignItems: "center",
+    height: 100, // Igual à altura do cartão
+    width: 100, // Quadrado
+    borderRadius: 10,
+    marginVertical: 5,
+  },
+  swipeButton: {
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100%",
+    width: "100%",
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 5,
+  },
+  cardText: {
+    fontSize: 14,
+    color: "#555",
+  },
+  cardInfo: {
+    fontWeight: "bold",
+    color: "#333",
+  },
+  cardNotes: {
+    fontSize: 12,
+    color: "#666",
+    marginTop: 5,
+  },
 });
 
 export default TarefasVencimentoProximoScreen;
