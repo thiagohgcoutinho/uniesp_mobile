@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Alert,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
 import CartoesEstudoContext from "../contexts/CartoesEstudoContext";
 import { Swipeable } from "react-native-gesture-handler";
@@ -58,6 +59,9 @@ const TarefasVencimentoProximoScreen = () => {
     CartoesEstudoContext
   );
 
+  const { width } = Dimensions.get("window");
+  const isLargeScreen = width > 600; // Ajusta para telas maiores que 600px
+
   const grupos = agruparPorData(cartoes);
 
   const marcarComoConcluido = (cartao) => {
@@ -101,21 +105,13 @@ const TarefasVencimentoProximoScreen = () => {
 
   const renderizarCartao = ({ item }) => {
     const dataTermino = new Date(item.dataTermino);
-    const diferencaDias = (dataTermino - new Date()) / (1000 * 60 * 60 * 24);
-
-    let cardStyle = { ...styles.card };
-    if (diferencaDias <= 3) {
-      cardStyle = { ...cardStyle, ...styles.cardUrgent };
-    } else if (diferencaDias <= 7) {
-      cardStyle = { ...cardStyle, ...styles.cardWarning };
-    }
 
     return (
       <Swipeable
         renderLeftActions={() => renderizarAcoesSwipe(item, "excluir")}
         renderRightActions={() => renderizarAcoesSwipe(item, "concluir")}
       >
-        <View style={cardStyle}>
+        <View style={styles.card}>
           <Text style={styles.cardTitle}>{item.titulo}</Text>
           <Text style={styles.cardText}>
             Status: <Text style={styles.cardInfo}>{traduzirStatus(item.status)}</Text>
@@ -142,6 +138,8 @@ const TarefasVencimentoProximoScreen = () => {
         data={dados}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderizarCartao}
+        numColumns={isLargeScreen ? 2 : 1} // Alterna entre colunas e lista única
+        columnWrapperStyle={isLargeScreen ? styles.columnWrapper : null}
         contentContainerStyle={styles.flatListContainer}
       />
     </View>
@@ -162,67 +160,31 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "#f7f7f7",
   },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 10,
-    textAlign: "center",
-  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 10,
     marginTop: 20,
   },
+  flatListContainer: {
+    paddingBottom: 10,
+  },
+  columnWrapper: {
+    justifyContent: "space-between",
+  },
   card: {
     backgroundColor: "#fff",
     borderRadius: 10,
     padding: 15,
-    marginVertical: 5,
-    marginHorizontal: 10,
+    margin: 5,
     elevation: 2,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    height: 100, // Altura ajustada
-    justifyContent: "space-between",
-  },
-  cardWarning: {
-    borderColor: "#ffc107",
-    borderWidth: 2,
-  },
-  cardUrgent: {
-    borderColor: "#ff4500",
-    borderWidth: 2,
-  },
-  swipeCompleteContainer: {
-    backgroundColor: "#d4edda",
-    borderColor: "#28a745",
-    borderWidth: 2,
-    justifyContent: "center",
-    alignItems: "center",
-    height: 100, // Igual à altura do cartão
-    width: 100, // Quadrado
-    borderRadius: 10,
-    marginVertical: 5,
-  },
-  swipeDeleteContainer: {
-    backgroundColor: "#f8d7da",
-    borderColor: "#dc3545",
-    borderWidth: 2,
-    justifyContent: "center",
-    alignItems: "center",
-    height: 100, // Igual à altura do cartão
-    width: 100, // Quadrado
-    borderRadius: 10,
-    marginVertical: 5,
-  },
-  swipeButton: {
-    justifyContent: "center",
-    alignItems: "center",
-    height: "100%",
-    width: "100%",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    flex: 1, // Faz com que ocupe o mesmo espaço em colunas
   },
   cardTitle: {
     fontSize: 16,
@@ -242,6 +204,34 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#666",
     marginTop: 5,
+  },
+  swipeCompleteContainer: {
+    backgroundColor: "#d4edda",
+    borderColor: "#28a745",
+    borderWidth: 2,
+    justifyContent: "center",
+    alignItems: "center",
+    height: 100,
+    width: 100,
+    borderRadius: 10,
+    marginVertical: 5,
+  },
+  swipeDeleteContainer: {
+    backgroundColor: "#f8d7da",
+    borderColor: "#dc3545",
+    borderWidth: 2,
+    justifyContent: "center",
+    alignItems: "center",
+    height: 100,
+    width: 100,
+    borderRadius: 10,
+    marginVertical: 5,
+  },
+  swipeButton: {
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100%",
+    width: "100%",
   },
 });
 
