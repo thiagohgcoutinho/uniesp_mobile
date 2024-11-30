@@ -9,7 +9,7 @@ O **Study App** é um aplicativo para gerenciamento de cartões de estudo, desen
 Para executar o projeto, você precisará das seguintes ferramentas instaladas:
 - Node.js
 - Expo CLI
-- Um editor de código (recomendado: Visual Studio Code)
+- Um editor de código (utilizado: Visual Studio Code)
 - Um dispositivo ou emulador para testar (Android/iOS)
 
 ---
