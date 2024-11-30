@@ -55,11 +55,15 @@ Abaixo está a organização das pastas do projeto e uma breve descrição de ca
    - Exibe os cartões agrupados por status: Backlog, Em Progresso, Concluído.
    - Destaque para tarefas próximas ao vencimento (nos próximos 15 dias).
    - Permite navegar para edição ou criação de cartões.
+   - **Melhoria**: Adicionado alerta de confirmação ao clicar no botão de logout.
 
 2. **`EdicaoCartaoScreen.js`**
    - Tela para criar ou editar um cartão.
    - Campos para título, notas, data de término e status.
    - Utiliza um seletor de data e hora e opções de status.
+   - **Melhorias**:
+     - Centralização do `DateTimePicker` para telas maiores.
+     - Ajuste do modal de seleção de status para uma experiência visual mais agradável e responsiva.
 
 3. **`LoginScreen.js`**
    - Tela para autenticar o usuário com email e senha.
@@ -72,6 +76,10 @@ Abaixo está a organização das pastas do projeto e uma breve descrição de ca
 5. **`TarefasVencimentoProximoScreen.js`**
    - Exibe uma lista de tarefas com vencimento nos próximos 15 dias.
    - Inclui informações detalhadas como título, status e data/hora de término.
+   - **Melhoria**:
+     - Exclui automaticamente tarefas com status "Concluído".
+     - Botões de swipe redesenhados, com ícones e cores suaves.
+     - Suporte para ajuste responsivo, mantendo os cartões esticados em dispositivos maiores.
 
 ---
 
@@ -84,6 +92,15 @@ O projeto utiliza as seguintes bibliotecas:
 - **`@react-native-picker/picker`**: Seletor para opções (como status do cartão).
 - **`react-native-vector-icons`**: Ícones para uma interface visual atrativa.
 - **`react-native-dotenv`**: Gerenciamento de variáveis de ambiente.
+
+---
+
+## 🔥 Melhorias Implementadas
+Além das funcionalidades básicas, foram realizadas melhorias para incrementar a experiência do usuário:
+1. Confirmação antes de logout para evitar saídas acidentais.
+2. Interface responsiva para tablets e dispositivos grandes, com elementos centralizados.
+3. Estilização aprimorada para os modais de seleção de data e status.
+4. Swipe com botões redesenhados e integrados ao contexto visual dos cartões.
 
 ---
 

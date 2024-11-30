@@ -12,15 +12,16 @@ import {
     Platform,
     Alert,
     Modal,
+    Dimensions,
 } from 'react-native';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import { MaterialIcons } from 'react-native-vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import CartoesEstudoContext from '../contexts/CartoesEstudoContext';
 
 const EdicaoCartaoScreen = ({ route, navigation }) => {
     const { id } = route.params || {};
     const { cartoes, adicionarCartao, atualizarCartao } = useContext(CartoesEstudoContext);
-    const cartao = cartoes.find(c => c.id === id) || {};
+    const cartao = cartoes.find((c) => c.id === id) || {};
 
     const [titulo, setTitulo] = useState(cartao.titulo || '');
     const [notas, setNotas] = useState(cartao.notas || '');
@@ -84,6 +85,9 @@ const EdicaoCartaoScreen = ({ route, navigation }) => {
         setMostraPickerStatus(false);
     };
 
+    const { width } = Dimensions.get('window');
+    const isLargeScreen = width > 600;
+
     return (
         <KeyboardAvoidingView
             style={{ flex: 1 }}
@@ -93,10 +97,7 @@ const EdicaoCartaoScreen = ({ route, navigation }) => {
                 <ScrollView contentContainerStyle={styles.container}>
                     <Text style={styles.label}>Título:</Text>
                     <TextInput
-                        style={[
-                            styles.input,
-                            erros.titulo && styles.inputErro,
-                        ]}
+                        style={[styles.input, erros.titulo && styles.inputErro]}
                         value={titulo}
                         onChangeText={(text) => {
                             setTitulo(text);
@@ -109,11 +110,7 @@ const EdicaoCartaoScreen = ({ route, navigation }) => {
 
                     <Text style={styles.label}>Notas:</Text>
                     <TextInput
-                        style={[
-                            styles.input,
-                            styles.textArea,
-                            erros.notas && styles.inputErro,
-                        ]}
+                        style={[styles.input, styles.textArea, erros.notas && styles.inputErro]}
                         value={notas}
                         onChangeText={(text) => {
                             setNotas(text);
@@ -126,13 +123,11 @@ const EdicaoCartaoScreen = ({ route, navigation }) => {
                     {erros.notas && <Text style={styles.mensagemErro}>{erros.notas}</Text>}
 
                     <Text style={styles.label}>Data e Hora de Término:</Text>
-                    <TouchableOpacity
-                        style={styles.button}
-                        onPress={exibirDateTimePicker}
-                    >
+                    <TouchableOpacity style={styles.button} onPress={exibirDateTimePicker}>
                         <MaterialIcons name="date-range" size={20} color="#ffffff" />
                         <Text style={styles.buttonText}>
-                            {dataTermino.toLocaleDateString()} às {dataTermino.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            {dataTermino.toLocaleDateString()} às{' '}
+                            {dataTermino.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </Text>
                     </TouchableOpacity>
                     <DateTimePickerModal
@@ -144,22 +139,21 @@ const EdicaoCartaoScreen = ({ route, navigation }) => {
                         cancelTextIOS="Cancelar"
                         themeVariant="light"
                         display={Platform.OS === 'ios' ? 'inline' : 'spinner'}
+                        style={[isLargeScreen && { alignSelf: 'center' }]}
                     />
 
                     <Text style={styles.label}>Status:</Text>
-                    <TouchableOpacity
-                        style={styles.button}
-                        onPress={() => setMostraPickerStatus(true)}
-                    >
+                    <TouchableOpacity style={styles.button} onPress={() => setMostraPickerStatus(true)}>
                         <Text style={styles.buttonText}>{traduzirStatus(status)}</Text>
                     </TouchableOpacity>
-                    <Modal
-                        transparent={true}
-                        visible={mostraPickerStatus}
-                        animationType="fade"
-                    >
+                    <Modal transparent={true} visible={mostraPickerStatus} animationType="fade">
                         <View style={styles.modal}>
-                            <View style={styles.modalContent}>
+                            <View
+                                style={[
+                                    styles.modalContent,
+                                    isLargeScreen && { width: '50%', alignItems: 'center' },
+                                ]}
+                            >
                                 {['backlog', 'in_progress', 'done'].map((valor) => (
                                     <TouchableOpacity
                                         key={valor}
