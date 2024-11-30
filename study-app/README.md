@@ -14,10 +14,22 @@ Para executar o projeto, você precisará das seguintes ferramentas instaladas:
 
 ---
 
-## 📂 Estrutura de Pastas
-Abaixo está a explicação da arquitetura do projeto:
+### 📂 Estrutura de Pastas
+Abaixo está a organização das pastas do projeto e uma breve descrição de cada uma:
 
-study-app ├── assets/ # Imagens e ícones utilizados no app ├── src/ # Código-fonte principal │ ├── config/ # Configuração do Firebase │ ├── contexts/ # Contextos para gerenciamento de estado │ ├── screens/ # Telas do aplicativo ├── .env # Variáveis de ambiente sensíveis ├── app.json # Configurações do aplicativo Expo ├── package.json # Dependências e scripts do projeto ├── eas.json # Configurações do EAS (Expo Application Services) └── App.js # Arquivo principal do aplicativo
+| Caminho                  | Descrição                                               |
+|--------------------------|---------------------------------------------------------|
+| **study-app/**           | Diretório raiz do projeto.                              |
+| ├── **assets/**          | Contém imagens e ícones utilizados no app.             |
+| ├── **src/**             | Código-fonte principal.                                |
+| │   ├── **config/**      | Configuração do Firebase.                              |
+| │   ├── **contexts/**    | Contextos para gerenciamento de estado.                |
+| │   ├── **screens/**     | Telas do aplicativo.                                   |
+| ├── **.env**             | Variáveis de ambiente sensíveis.                       |
+| ├── **app.json**         | Configurações do aplicativo Expo.                      |
+| ├── **package.json**     | Dependências e scripts do projeto.                     |
+| ├── **eas.json**         | Configurações do EAS (Expo Application Services).      |
+| └── **App.js**           | Arquivo principal do aplicativo.                       |
 
 
 ---
