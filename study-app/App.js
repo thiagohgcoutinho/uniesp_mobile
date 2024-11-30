@@ -7,6 +7,7 @@ import { ProvedorCartoesEstudo } from './src/contexts/CartoesEstudoContext';
 import ListaCartaoScreen from './src/screens/ListaCartaoScreen';
 import EdicaoCartaoScreen from './src/screens/EdicaoCartaoScreen';
 import TarefasVencimentoProximoScreen from './src/screens/TarefasVencimentoProximoScreen';
+import ConfiguracaoPerfilScreen from './src/screens/ConfiguracaoPerfilScreen';
 import LoginScreen from './src/screens/LoginScreen';
 import RegistroScreen from './src/screens/RegistroScreen';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -43,14 +44,22 @@ const AppNavigator = () => {
                     <Stack.Screen 
                         name="ListaCartao" 
                         component={ListaCartaoScreen} 
-                        options={{
+                        options={({ navigation }) => ({
                             title: 'Cartões de Estudo',
+                            headerLeft: () => (
+                                <TouchableOpacity
+                                    onPress={() => navigation.navigate('ConfiguracaoPerfil')}
+                                    style={{ marginLeft: 15 }}
+                                >
+                                    <MaterialIcons name="settings" size={24} color="#007bff" />
+                                </TouchableOpacity>
+                            ),
                             headerRight: () => (
                                 <TouchableOpacity onPress={confirmarLogout} style={{ marginRight: 15 }}>
                                     <MaterialIcons name="logout" size={24} color="#ff6347" />
                                 </TouchableOpacity>
                             ),
-                        }} 
+                        })}
                     />
                     <Stack.Screen 
                         name="EdicaoCartao" 
@@ -61,6 +70,11 @@ const AppNavigator = () => {
                         name="TarefasVencimentoProximo" 
                         component={TarefasVencimentoProximoScreen} 
                         options={{ title: 'Tarefas a Vencer' }} 
+                    />
+                    <Stack.Screen 
+                        name="ConfiguracaoPerfil" 
+                        component={ConfiguracaoPerfilScreen} 
+                        options={{ title: 'Configurações do Perfil' }} 
                     />
                 </>
             ) : (
