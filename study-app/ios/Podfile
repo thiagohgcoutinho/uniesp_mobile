@@ -16,6 +16,9 @@ prepare_react_native_project!
 target 'studyapp' do
   use_expo_modules!
 
+  # Adicione a linha abaixo para incluir a dependência do GoogleSignIn
+  pod 'GoogleSignIn'
+
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
     config_command = ['node', '-e', "process.argv=['', '', 'config'];require('@react-native-community/cli').run()"];
   else

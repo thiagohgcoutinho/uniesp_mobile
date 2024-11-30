@@ -10,22 +10,40 @@ import {
     ScrollView,
     TouchableWithoutFeedback,
     Keyboard,
-    Platform
+    Platform,
+    ActivityIndicator,
 } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../config/firebaseConfig';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const RegistroScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleRegister = async () => {
+        if (!email || !password) {
+            Alert.alert('Erro', 'Por favor, preencha todos os campos.');
+            return;
+        }
+
+        setLoading(true);
+
         try {
             await createUserWithEmailAndPassword(auth, email, password);
             Alert.alert('Sucesso', 'Conta criada com sucesso!');
-            navigation.goBack(); // Retorna à tela de login após o registro
+            navigation.goBack(); // Retorna à tela de login
         } catch (error) {
-            Alert.alert('Erro', error.message);
+            const errorMessage = error.message.includes('auth/email-already-in-use')
+                ? 'O email já está em uso. Tente outro.'
+                : error.message.includes('auth/weak-password')
+                ? 'A senha deve ter pelo menos 6 caracteres.'
+                : 'Erro ao criar conta. Tente novamente mais tarde.';
+            Alert.alert('Erro', errorMessage);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -46,17 +64,37 @@ const RegistroScreen = ({ navigation }) => {
                         keyboardType="email-address"
                         autoCapitalize="none"
                     />
-                    <TextInput
-                        placeholder="Senha"
-                        value={password}
-                        onChangeText={setPassword}
-                        secureTextEntry
-                        style={styles.input}
-                        autoCapitalize="none"
-                    />
+                    <View style={styles.passwordContainer}>
+                        <TextInput
+                            placeholder="Senha"
+                            value={password}
+                            onChangeText={setPassword}
+                            secureTextEntry={!showPassword}
+                            style={styles.inputPassword}
+                            autoCapitalize="none"
+                        />
+                        <TouchableOpacity
+                            style={styles.passwordToggle}
+                            onPress={() => setShowPassword(!showPassword)}
+                        >
+                            <MaterialIcons
+                                name={showPassword ? 'visibility' : 'visibility-off'}
+                                size={20}
+                                color="#6c757d"
+                            />
+                        </TouchableOpacity>
+                    </View>
 
-                    <TouchableOpacity style={styles.button} onPress={handleRegister}>
-                        <Text style={styles.buttonText}>Registrar</Text>
+                    <TouchableOpacity
+                        style={styles.button}
+                        onPress={handleRegister}
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <ActivityIndicator color="#ffffff" />
+                        ) : (
+                            <Text style={styles.buttonText}>Registrar</Text>
+                        )}
                     </TouchableOpacity>
                 </ScrollView>
             </TouchableWithoutFeedback>
@@ -86,6 +124,23 @@ const styles = StyleSheet.create({
         padding: 10,
         marginBottom: 15,
         backgroundColor: '#ffffff',
+    },
+    passwordContainer: {
+        position: 'relative',
+        marginBottom: 15,
+    },
+    inputPassword: {
+        height: 50,
+        borderColor: '#ced4da',
+        borderWidth: 1,
+        borderRadius: 10,
+        padding: 10,
+        backgroundColor: '#ffffff',
+    },
+    passwordToggle: {
+        position: 'absolute',
+        right: 15,
+        top: 15,
     },
     button: {
         backgroundColor: '#007bff',

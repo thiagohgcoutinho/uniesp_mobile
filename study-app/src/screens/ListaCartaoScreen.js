@@ -8,16 +8,18 @@ import {
 } from 'react-native';
 import CartoesEstudoContext from '../contexts/CartoesEstudoContext';
 import { MaterialIcons } from 'react-native-vector-icons';
+import { filtrarCartoesAVencer } from '../utils';
 
 const ListaCartaoScreen = ({ navigation }) => {
     const { cartoes, excluirCartao } = useContext(CartoesEstudoContext);
+
+    const cartoesVencimentoProximo = filtrarCartoesAVencer(cartoes);
 
     const renderizarCartao = ({ item }) => {
         const hoje = new Date();
         const dataTermino = new Date(item.dataTermino);
         const diferencaDias = (dataTermino - hoje) / (1000 * 60 * 60 * 24);
 
-        // Define a cor da borda
         let cardStyle = { ...styles.card };
         if (item.status === 'done') {
             cardStyle = { ...cardStyle, ...styles.cardDone };
@@ -49,7 +51,6 @@ const ListaCartaoScreen = ({ navigation }) => {
         return (
             <View style={cardStyle}>
                 <View style={styles.cardHeader}>
-                    {/* Ícone de alerta para cartões em backlog com menos de 15 dias */}
                     {item.status === 'backlog' && diferencaDias <= 15 && diferencaDias >= 0 && (
                         <MaterialIcons
                             name="warning"
@@ -92,24 +93,27 @@ const ListaCartaoScreen = ({ navigation }) => {
         );
     };
 
-    const cartoesVencimentoProximo = cartoes.filter(cartao => {
-        const dataTermino = new Date(cartao.dataTermino);
-        const diferencaDias = (dataTermino - new Date()) / (1000 * 60 * 60 * 24);
-        return diferencaDias >= 0 && diferencaDias <= 15;
-    });
-
     return (
         <View style={styles.container}>
-            {/* Botão melhorado para "Tarefas a Vencer" */}
-            <TouchableOpacity
-                style={styles.dueSoonButton}
-                onPress={() => navigation.navigate('TarefasVencimentoProximo')}
-            >
-                <MaterialIcons name="warning" size={20} color="#ffffff" />
-                <Text style={styles.dueSoonButtonText}>
-                    Tarefas a Vencer: {cartoesVencimentoProximo.length}
-                </Text>
-            </TouchableOpacity>
+            {/* Botões no topo */}
+            <View style={styles.topButtons}>
+                <TouchableOpacity
+                    style={styles.topButton}
+                    onPress={() => navigation.navigate('TarefasVencimentoProximo')}
+                >
+                    <MaterialIcons name="warning" size={20} color="#ffffff" />
+                    <Text style={styles.topButtonText}>
+                        Tarefas a Vencer ({cartoesVencimentoProximo.length})
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.topButton, styles.addButton]}
+                    onPress={() => navigation.navigate('EdicaoCartao')}
+                >
+                    <MaterialIcons name="add" size={20} color="#ffffff" />
+                    <Text style={styles.topButtonText}>Adicionar Cartão</Text>
+                </TouchableOpacity>
+            </View>
 
             {/* Renderização por status */}
             <Text style={styles.sectionTitle}>Backlog</Text>
@@ -141,13 +145,6 @@ const ListaCartaoScreen = ({ navigation }) => {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.flatListContainer}
             />
-
-            <TouchableOpacity
-                style={styles.floatingButton}
-                onPress={() => navigation.navigate('EdicaoCartao')}
-            >
-                <MaterialIcons name="add" size={24} color="#ffffff" />
-            </TouchableOpacity>
         </View>
     );
 };
@@ -158,20 +155,26 @@ const styles = StyleSheet.create({
         padding: 15,
         backgroundColor: '#f7f7f7',
     },
-    dueSoonButton: {
+    topButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 20,
+    },
+    topButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center',
         backgroundColor: '#ff4500',
-        padding: 15,
-        borderRadius: 10,
-        marginBottom: 15,
+        padding: 10,
+        borderRadius: 8,
     },
-    dueSoonButtonText: {
+    addButton: {
+        backgroundColor: '#007bff',
+    },
+    topButtonText: {
         color: '#ffffff',
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: 'bold',
-        marginLeft: 10,
+        marginLeft: 5,
     },
     sectionTitle: {
         fontSize: 18,
@@ -240,18 +243,6 @@ const styles = StyleSheet.create({
     iconButton: {
         paddingHorizontal: 4,
         paddingVertical: 2,
-    },
-    floatingButton: {
-        position: 'absolute',
-        bottom: 20,
-        right: 20,
-        backgroundColor: '#007bff',
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        justifyContent: 'center',
-        alignItems: 'center',
-        elevation: 5,
     },
 });
 

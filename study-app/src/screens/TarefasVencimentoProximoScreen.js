@@ -2,20 +2,12 @@ import React, { useContext } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import CartoesEstudoContext from '../contexts/CartoesEstudoContext';
 import { MaterialIcons } from 'react-native-vector-icons';
+import { filtrarCartoesAVencer } from '../utils';
 
 const TarefasVencimentoProximoScreen = () => {
     const { cartoes, atualizarCartao } = useContext(CartoesEstudoContext);
 
-    const hoje = new Date();
-    const cartoesVencimentoProximo = cartoes.filter(cartao => {
-        const dataTermino = new Date(cartao.dataTermino);
-        const diferencaDias = (dataTermino - hoje) / (1000 * 60 * 60 * 24);
-        return (
-            diferencaDias >= 0 &&
-            diferencaDias <= 15 &&
-            (cartao.status === 'backlog' || cartao.status === 'in_progress')
-        );
-    });
+    const cartoesVencimentoProximo = filtrarCartoesAVencer(cartoes);
 
     const traduzirStatus = (status) => {
         switch (status) {
@@ -51,9 +43,8 @@ const TarefasVencimentoProximoScreen = () => {
 
     const renderizarCartao = ({ item }) => {
         const dataTermino = new Date(item.dataTermino);
-        const diferencaDias = (dataTermino - hoje) / (1000 * 60 * 60 * 24);
+        const diferencaDias = (dataTermino - new Date()) / (1000 * 60 * 60 * 24);
 
-        // Define a cor da borda com base na urgência
         let cardStyle = { ...styles.card };
         if (diferencaDias <= 7) {
             cardStyle = { ...cardStyle, ...styles.cardUrgent };
