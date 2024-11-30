@@ -6,7 +6,6 @@ import {
   StyleSheet,
   Alert,
   TouchableOpacity,
-  Dimensions,
 } from "react-native";
 import CartoesEstudoContext from "../contexts/CartoesEstudoContext";
 import { Swipeable } from "react-native-gesture-handler";
@@ -58,9 +57,6 @@ const TarefasVencimentoProximoScreen = () => {
   const { cartoes, atualizarCartao, excluirCartao } = useContext(
     CartoesEstudoContext
   );
-
-  const { width } = Dimensions.get("window");
-  const isLargeScreen = width > 600; // Ajusta para telas maiores que 600px
 
   const grupos = agruparPorData(cartoes);
 
@@ -138,8 +134,6 @@ const TarefasVencimentoProximoScreen = () => {
         data={dados}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderizarCartao}
-        numColumns={isLargeScreen ? 2 : 1} // Alterna entre colunas e lista única
-        columnWrapperStyle={isLargeScreen ? styles.columnWrapper : null}
         contentContainerStyle={styles.flatListContainer}
       />
     </View>
@@ -169,14 +163,12 @@ const styles = StyleSheet.create({
   flatListContainer: {
     paddingBottom: 10,
   },
-  columnWrapper: {
-    justifyContent: "space-between",
-  },
   card: {
     backgroundColor: "#fff",
     borderRadius: 10,
     padding: 15,
-    margin: 5,
+    marginVertical: 5,
+    marginHorizontal: 10,
     elevation: 2,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -184,7 +176,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     borderWidth: 1,
     borderColor: "#ddd",
-    flex: 1, // Faz com que ocupe o mesmo espaço em colunas
   },
   cardTitle: {
     fontSize: 16,
