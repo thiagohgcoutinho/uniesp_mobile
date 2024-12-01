@@ -196,23 +196,24 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     input: {
+        borderWidth: 1,
         borderColor: '#ddd',
-        backgroundColor: '#fff',
+        borderRadius: 8,
         padding: 12,
-        borderRadius: 10,
-        fontSize: 16,
-        marginBottom: 20,
+        backgroundColor: '#fff',
+        marginBottom: 15,
     },
     inputErro: {
-        borderColor: '#e63946',
-        borderWidth: 1,
+        borderColor: '#dc3545',
     },
     mensagemErro: {
-        color: '#e63946',
+        color: '#dc3545',
+        fontSize: 12,
         marginBottom: 10,
     },
     textArea: {
         height: 100,
+        textAlignVertical: 'top',
     },
     button: {
         flexDirection: 'row',
@@ -220,7 +221,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: '#007bff',
         padding: 12,
-        borderRadius: 10,
+        borderRadius: 8,
     },
     buttonText: {
         color: '#fff',
@@ -233,7 +234,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         backgroundColor: '#28a745',
         padding: 12,
-        borderRadius: 10,
+        borderRadius: 8,
         marginTop: 20,
     },
     modal: {
@@ -247,15 +248,12 @@ const styles = StyleSheet.create({
         padding: 20,
         borderRadius: 10,
         width: '80%',
-        alignItems: 'center',
     },
     modalItem: {
-        fontSize: 18,
-        marginVertical: 10,
-        padding: 10,
+        padding: 15,
         borderRadius: 5,
-        width: '100%',
         textAlign: 'center',
+        marginVertical: 5,
     },
     itemSelecionado: {
         backgroundColor: '#d3d3d3',
@@ -263,9 +261,8 @@ const styles = StyleSheet.create({
     buttonConfirmar: {
         backgroundColor: '#007bff',
         padding: 12,
-        borderRadius: 10,
+        borderRadius: 8,
         marginTop: 20,
-        width: '100%',
         alignItems: 'center',
     },
 });
