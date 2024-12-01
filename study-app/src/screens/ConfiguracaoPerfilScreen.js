@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { AuthContext } from "../contexts/AuthContext";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db, auth } from "../config/firebaseConfig";
 import {
   updatePassword,
@@ -52,10 +52,16 @@ const ConfiguracaoPerfilScreen = ({ navigation }) => {
           setNome(nome || "");
           setCurso(curso || "");
           setFotoPerfil(fotoPerfil || null);
+        } else {
+          await setDoc(docRef, {
+            nome: "",
+            curso: "",
+            fotoPerfil: null,
+          });
         }
       } catch (error) {
         console.error("Erro ao carregar perfil: ", error);
-        Alert.alert("Erro", "Não foi possível carregar os dados do perfil.");
+        Alert.alert("Erro", "Não foi possível carregar ou criar os dados do perfil.");
       } finally {
         setLoading(false);
       }
@@ -77,7 +83,7 @@ const ConfiguracaoPerfilScreen = ({ navigation }) => {
 
     try {
       const userDocRef = doc(db, "users", user.uid);
-      await updateDoc(userDocRef, {
+      await setDoc(userDocRef, {
         nome,
         curso,
         fotoPerfil,
@@ -266,6 +272,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: "#f7f7f7",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: "#f7f7f7",
   },
   avatarContainer: {
