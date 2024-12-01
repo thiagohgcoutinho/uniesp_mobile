@@ -67,6 +67,7 @@ Abaixo está a organização das pastas do projeto e uma breve descrição de ca
    - **Melhorias**:
      - Centralização do `DateTimePicker` para telas maiores.
      - Ajuste do modal de seleção de status para uma experiência visual mais agradável e responsiva.
+     - Alinhamento dos campos e placeholders visuais aprimorados.
 
 3. **`LoginScreen.js`**
    - Tela para autenticar o usuário com email e senha.
@@ -95,9 +96,10 @@ Abaixo está a organização das pastas do projeto e uma breve descrição de ca
      - Editar campos como nome completo e curso.
      - Exibe o email do usuário autenticado (não editável).
    - **Melhorias**:
-     - Se o perfil já foi criado, os campos são preenchidos automaticamente.
-     - Diferenciação visual para campos editáveis e não-editáveis.
-     - Foto de perfil com opção de upload da galeria.
+     - Preenchimento automático dos campos caso o perfil já tenha sido criado.
+     - Criação automática de um perfil padrão para novos usuários.
+     - Opção para alterar senha com modal amigável e campos visualmente alinhados.
+     - Design refinado, incluindo placeholders com visual moderno.
 
 ---
 
@@ -123,6 +125,8 @@ O projeto utiliza as seguintes bibliotecas:
 6. Botões melhorados no `LoginScreen` com a adição de ícones e botão "Esqueci minha senha".
 7. Reestilização completa da `TarefasVencimentoProximoScreen`, com suporte para deslizar cartões e exclusão automática de tarefas concluídas.
 8. Design refinado na `ListaCartaoScreen`, com ícones de alerta e bordas coloridas para tarefas próximas ao vencimento.
+9. Modal de alteração de senha na `ConfiguracaoPerfilScreen` com campos alinhados e placeholders modernos.
+10. Criação automática de perfis padrão para novos usuários ao acessar a `ConfiguracaoPerfilScreen`.
 
 ---
 
