@@ -21,7 +21,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // Estado para controlar a visibilidade da senha
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // Função para lidar com login
@@ -86,7 +86,6 @@ const LoginScreen = ({ navigation }) => {
             autoCapitalize="none"
           />
 
-          {/* Campo de senha com ícone para alternar a visibilidade */}
           <View style={styles.passwordContainer}>
             <TextInput
               placeholder="Senha"

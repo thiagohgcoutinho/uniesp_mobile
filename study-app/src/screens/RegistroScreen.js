@@ -65,7 +65,6 @@ const RegistroScreen = ({ navigation }) => {
             autoCapitalize="none"
           />
 
-          {/* Campo de senha com ícone para alternar a visibilidade */}
           <View style={styles.passwordContainer}>
             <TextInput
               placeholder="Senha"

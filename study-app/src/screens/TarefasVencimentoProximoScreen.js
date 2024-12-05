@@ -26,7 +26,7 @@ const agruparPorData = (cartoes) => {
   };
 
   cartoes
-    .filter((cartao) => cartao.status !== "done") // Filtra apenas os cartões backlog e em progresso
+    .filter((cartao) => cartao.status !== "done")
     .forEach((cartao) => {
       const dataTermino = new Date(cartao.dataTermino).toDateString();
 
