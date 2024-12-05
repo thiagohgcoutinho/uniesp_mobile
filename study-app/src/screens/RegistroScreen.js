@@ -34,7 +34,7 @@ const RegistroScreen = ({ navigation }) => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       Alert.alert("Sucesso", "Conta criada com sucesso!");
-      navigation.goBack(); // Retorna à tela de login
+      navigation.goBack();
     } catch (error) {
       const errorMessage = error.message.includes("auth/email-already-in-use")
         ? "O email já está em uso. Tente outro."
