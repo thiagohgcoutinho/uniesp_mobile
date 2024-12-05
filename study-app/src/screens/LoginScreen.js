@@ -45,7 +45,7 @@ const LoginScreen = ({ navigation }) => {
     }
   };
 
-  // Função para redefinir senha
+  
   const handleForgotPassword = async () => {
     if (!email) {
       Alert.alert("Erro", "Por favor, insira o email para redefinição de senha.");
