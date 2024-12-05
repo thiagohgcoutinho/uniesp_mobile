@@ -24,7 +24,7 @@ const LoginScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Função para lidar com login
+
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert("Erro", "Por favor, preencha todos os campos.");
